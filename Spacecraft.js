@@ -6,27 +6,41 @@ let accelerationY = 0.1;
 let particles = [];
 let explosionTriggered = false;
 let landedSafely = false;
+let gameWon = false;
 let explosionX = 0;
 let explosionY = 0;
+let gameState = 'START';
 
 createCanvas(600, 700);
 
 function draw() {
     background(0);
+    if (gameState === 'START') {
+        drawStartScreen();
+    } else if (gameState === 'PLAY') {
+        drawGamePlay();
+    } else if ( gameState === 'WIN') {
+        gameWin(width, height);
+    } else if ( gameState === 'GAMEOVER') {
+        gameOver(width, height);
+    }
+
+    
+}
+function drawGamePlay(){
     drawSpaceAtm(width, height);
 
     if (mouseIsPressed && y > 300 && y < 400){
         drawLights(x, y);
     }
 
-
-    if (!landedSafely) {
+    if (!landedSafely && !gameWon) {
         if (y <= 550) {
             drawSpacecraft(x, y);
             y = y + speedY; //Gravity and speed
             speedY = speedY + accelerationY;
 
-            //Balance speed when mouse is pressed
+            //Balance speed when mouse or space key is pressed
             if (mouseIsPressed || keyIsDown(32)) {
                 speedY = speedY - 0.7;
             }
@@ -35,8 +49,10 @@ function draw() {
                 explosionY = y;
                 createExplosion();
                 explosionTriggered = true;
-            }   else {
+            }   else if (!explosionTriggered) {
                 landedSafely = true;
+                gameWon = true;
+                gameState = 'PLAY';
             }
         }
     }
@@ -78,19 +94,55 @@ function explosion() {
     }
 
     if (particles.length === 0){
-        gameOver(width, height);
+        gameState = 'GAMEOVER';
     }
 }
 
+function drawStartScreen() {
+    background(0);
+    textFont('monospace');
+    textAlign(CENTER, CENTER);
+    fill(255);
+    textSize(50);
+    text('Land Batman safely on the moon!', width / 2, height / 2);
+    textSize(30);
+    text('Press any key to start', width / 2, height / 2);
+}
+
+function gameWin() {
+    background('rgba(0, 0, 255, 0.3)');
+    textFont('monospace');
+    textAlign(CENTER, CENTER);
+    fill(0, 0, 255);
+    textSize(80);
+    text('YOU WON!', width / 3, height / 2 - 100);
+    textSize(30);
+    text('Press any key to restart', width / 3, height / 2);
+    noLoop();
+}
+
 function gameOver() {
+    background('rgba(150, 0, 0, 0.3)');
     textFont('monospace');
     textAlign(CENTER, CENTER);
     fill(255, 0, 0);
     textSize(80);
-    text('GAME OVER', width / 2 - 100, height / 2 - 100);
+    text('GAME OVER', width / 3, height / 2 - 100);
     textSize(30);
-    text('Press any key to restart', width / 2 - 100, height / 2);
+    text('Press any key to restart', width / 3, height / 2);
     noLoop();
+}
+
+function resetGame() {
+    x = 0;
+    y = 0;
+    speedY = 4;
+    accelerationY = 0.1;
+    particles = [];
+    explosionTriggered = false;
+    landedSafely = false;
+    gameWon = false;
+    loop();
 }
 
 //Drawing the space atmosphere
