@@ -1,36 +1,152 @@
 let x = 0;
 let y = 0;
-let speed = 0.1;
-let acceleration = 1;
+let s = 0.5; //Scale
+let speedY = 4;
+let accelerationY = 0.1;
+let particles = [];
+let explosionTriggered = false;
+let landedSafely = false;
+let explosionX = 0;
+let explosionY = 0;
 
 createCanvas(600, 700);
 
 function draw() {
-background(0);
-drawSpacecraft(x, y);
+    background(0);
+    drawSpaceAtm(width, height);
 
-//x += speed;
-y += speed;
-speed += acceleration;
+    if (mouseIsPressed && y > 300 && y < 400){
+        drawLights(x, y);
+    }
 
-if (x > 500 || y > 200) {
-    speed = 0;
+
+    if (!landedSafely) {
+        if (y <= 550) {
+            drawSpacecraft(x, y);
+            y = y + speedY; //Gravity and speed
+            speedY = speedY + accelerationY;
+
+            //Balance speed when mouse is pressed
+            if (mouseIsPressed || keyIsDown(32)) {
+                speedY = speedY - 0.7;
+            }
+        } else {
+            if (speedY > 5 && !explosionTriggered) {
+                explosionY = y;
+                createExplosion();
+                explosionTriggered = true;
+            }   else {
+                landedSafely = true;
+            }
+        }
+    }
+    
+    if (explosionTriggered) {
+        explosion();
+        
+    } else if (landedSafely) {
+        drawSpacecraft(x, 550);
+    }
 }
 
+function createExplosion() {
+    for (let i = 0; i < 200; i++){
+        particles.push({
+            x: 300,
+            y: explosionY,
+            velocityX: random(-15, 15),
+            velocityY: random(-10, 10),
+            lifespan: 255
+        });
+    }
 }
 
-function drawSpacecraft(x, y) {
-    translate(x - 200, y);
-    fill(37, 41, 38);
+function explosion() {
+    for (let i = particles.length - 1; i >= 0; i--){
+        let particle = particles[i];
+        particle.x += particle.velocityX;
+        particle.y += particle.velocityY;
+        particle.lifespan -= 5;
+        noStroke();
+        fill(255, 99, 3, particle.lifespan);
+        rect(particle.x, particle.y, 15);
+        ellipse(particle.x, particle.y, 15);
+
+        if (particle.lifespan <= 0) {
+            particles.splice(i, 1);
+        }
+    }
+
+    if (particles.length === 0){
+        gameOver(width, height);
+    }
+}
+
+function gameOver() {
+    textFont('monospace');
+    textAlign(CENTER, CENTER);
+    fill(255, 0, 0);
+    textSize(80);
+    text('GAME OVER', width / 2 - 100, height / 2 - 100);
+    textSize(30);
+    text('Press any key to restart', width / 2 - 100, height / 2);
+    noLoop();
+}
+
+//Drawing the space atmosphere
+function drawSpaceAtm(width, height){
+    starfield();
+    push();
+    stroke(68, 76, 87);
+    fill(81, 94, 110);
+    strokeWeight(10);
+    beginShape();
+    vertex(0, 500);
+    vertex(200, 470);
+    vertex(300, 480);
+    vertex(400, 470);
+    vertex(430, 490);
+    vertex(440, 470);
+    vertex(480, 460);
+    vertex(500, 500);
+    vertex(590, 470);
+    vertex(width, 500);
+    endShape(CLOSE);
+    pop();
     push();
     noStroke();
-    fill(252, 252, 28);
-    quad(460, 305, 540, 305, 550, 350, 450, 350);
-    fill(247, 247, 101);
-    quad(450, 350, 550, 350, 560, 395, 440, 395);
-    fill(252, 252, 189);
-    quad(440, 395, 560, 395, 570, 440, 430, 440);
+    fill(81, 94, 110);
+    rect(0, 495, width, height);
     pop();
+    push();
+    strokeWeight(10);
+    stroke(68, 76, 87);
+    fill(43, 48, 54);
+    ellipse(200, 600, 200, 60); 
+    ellipse(350, 500, 100, 20);
+    ellipse(90, 500, 70, 20);
+    ellipse(590, 550, 300, 90);
+    ellipse(420, 690, 70, 20);
+    pop();
+}
+
+//Drawing the starfield
+function starfield(){
+    push();
+    let x1 = random(width);
+    let y1 = random(height);
+    let sizeStar = random(1, 5);
+    let brightness = random(150, 255);
+    stroke(brightness);
+    strokeWeight(sizeStar);
+    point(x1, y1);
+    pop();
+}
+
+//Drawing the spacecraft with Batman inside
+function drawSpacecraft() {
+    translate(x - 200, y - 200);
+    fill(37, 41, 38);
 
     push();
     noStroke();
@@ -52,7 +168,6 @@ function drawSpacecraft(x, y) {
     
     ellipse(500, 230, 300, 100);
 
-    
     push();
     fill(149, 211, 245);
     ellipse(500, 180, 150, 180);
@@ -73,11 +188,11 @@ function drawSpacecraft(x, y) {
     push();
     noStroke();
     fill(252, 252, 28);
+  
     ellipse(390, 210, 30, 20);
     ellipse(450, 240, 40, 30);
     ellipse(550, 240, 40, 30);
     ellipse(610, 210, 30, 20);
-
     ellipse(360, 255, 7, 10);
     ellipse(390, 270, 7, 10);
     ellipse(425, 278, 7, 7);
@@ -87,17 +202,30 @@ function drawSpacecraft(x, y) {
     ellipse(575, 280, 7, 7);
     ellipse(610, 272, 7, 10);
     ellipse(635, 260, 7, 10);
-
     pop();
     drawBatman(260, 70);
 
 
 }
 
+//Drawing the lights under the spacecraft
+function drawLights(x, y){
+    push();
+    translate(x - 200, y - 200);
+    noStroke();
+    fill(252, 252, 28);
+    quad(460, 305, 540, 305, 550, 350, 450, 350);
+    fill(247, 247, 101);
+    quad(450, 350, 550, 350, 560, 395, 440, 395);
+    fill(252, 252, 189);
+    quad(440, 395, 560, 395, 570, 440, 430, 440);
+    pop();
+}
+
 function drawBatman(x, y) {
 push();
 translate(x, y);
-scale(0.5);
+scale(s);
 theArm();
 theHead();
 theEars();
@@ -114,7 +242,6 @@ noStroke();
 fill(5, 48, 48);
 rect(400, 100, 150, 100, 40);
 rect(400, 150, 150, 100);
-
 }
 
 function theArm() {
@@ -152,28 +279,6 @@ fill(0);
 rect(380, 200, 130, 50);
 fill(5, 48, 48);
 rect(380, 220, 130, 60);
-}
-function theCape() {
-noStroke();
-fill(36, 145, 145);
-rect(250, 210, 150, 60);
-arc(250, 210, 130, 130, PI-HALF_PI, PI);
-rect(340, 270, 220, 100);
-arc(345, 270, 200, 200, PI-HALF_PI, PI);
-}
-
-function theLegs() {
-fill(0);
-rect(390, 350, 55, 60);
-fill(5, 48, 48);
-rect(485, 350, 55, 60);
-}
-
-function theBelt() {
-fill(242, 218, 0);
-rect(375, 290, 130, 30, 10);
-fill(0);
-ellipse(400, 305, 30, 30);
 }
 
 function theCape1() {
