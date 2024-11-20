@@ -26,6 +26,11 @@ function draw() {
     } else if ( gameState === 'GAMEOVER') {
         gameOver();
     } 
+    
+    if (gameState !== 'PLAY') {
+        noLoop();
+    }
+
 }
 
 function drawGamePlay(){
@@ -88,7 +93,8 @@ function keyPressed() {
         loop();
     } else if (gameState === 'WIN' || gameState === 'GAMEOVER') {
         gameState = 'START';
-        loop();
+        resetGame();
+        loop();  
     }
 }
 
@@ -108,21 +114,20 @@ function explosion() {
         }
     }
 
-    if (particles.length === 0){
+    if (particles.length === 0 && explosionTriggered){
         gameState = 'GAMEOVER';
-        noLoop();
     }
 }
 
 function drawStartScreen() {
-    background(0);
+    starfield();
     textFont('monospace');
     textAlign(CENTER, CENTER);
     fill(255);
-    textSize(50);
-    text('Land Batman safely on the moon!', width / 2, height / 2);
     textSize(30);
-    text('Press any key to start', width / 2, height / 2);
+    text('Land Batman safely on the moon!', width / 2 - 100, height / 2 - 100);
+    textSize(20);
+    text('Press any key to start', width / 2 - 100, height / 2);
 }
 
 function gameWin() {
@@ -133,7 +138,7 @@ function gameWin() {
     textSize(80);
     text('YOU WON!', width / 3, height / 2 - 100);
     textSize(30);
-    text('Press any key to restart', width / 3, height / 2);
+    text('Press any key to restart', width / 3, height / 2 - 100);
     noLoop();
 }
 
