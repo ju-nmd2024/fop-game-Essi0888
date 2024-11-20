@@ -11,7 +11,9 @@ let explosionX = 0;
 let explosionY = 0;
 let gameState = 'START';
 
-createCanvas(600, 700);
+function setup() {
+    createCanvas(600, 700);
+}
 
 function draw() {
     background(0);
@@ -20,13 +22,12 @@ function draw() {
     } else if (gameState === 'PLAY') {
         drawGamePlay();
     } else if ( gameState === 'WIN') {
-        gameWin(width, height);
+        gameWin();
     } else if ( gameState === 'GAMEOVER') {
-        gameOver(width, height);
-    }
-
-    
+        gameOver();
+    } 
 }
+
 function drawGamePlay(){
     drawSpaceAtm(width, height);
 
@@ -52,16 +53,19 @@ function drawGamePlay(){
             }   else if (!explosionTriggered) {
                 landedSafely = true;
                 gameWon = true;
-                gameState = 'PLAY';
+                gameState = 'WIN';
             }
         }
     }
     
     if (explosionTriggered) {
         explosion();
-        
     } else if (landedSafely) {
         drawSpacecraft(x, 550);
+    }
+
+    if (gameState !== 'PLAY') {
+        noLoop();
     }
 }
 
@@ -74,6 +78,17 @@ function createExplosion() {
             velocityY: random(-10, 10),
             lifespan: 255
         });
+    }
+}
+
+function keyPressed() {
+    if (gameState === 'START') {
+        resetGame();
+        gameState = 'PLAY';
+        loop();
+    } else if (gameState === 'WIN' || gameState === 'GAMEOVER') {
+        gameState = 'START';
+        loop();
     }
 }
 
@@ -95,6 +110,7 @@ function explosion() {
 
     if (particles.length === 0){
         gameState = 'GAMEOVER';
+        noLoop();
     }
 }
 
