@@ -26,10 +26,6 @@ function draw() {
     } else if ( gameState === 'GAMEOVER') {
         gameOver();
     } 
-    
-    if (gameState !== 'PLAY') {
-        noLoop();
-    }
 
 }
 
@@ -69,9 +65,6 @@ function drawGamePlay(){
         drawSpacecraft(x, 550);
     }
 
-    if (gameState !== 'PLAY') {
-        noLoop();
-    }
 }
 
 function createExplosion() {
@@ -121,13 +114,21 @@ function explosion() {
 
 function drawStartScreen() {
     starfield();
+    push();
+    fill(255);
+    ellipse(width / 2, 150, 100);
+    fill(0);
+    triangle(290, 130, 330, 150, 290, 190);
+    triangle(330, 150, 320, 140, 340, 140);
+    triangle(330, 150, 370, 130, 370, 190);
+    pop();
     textFont('monospace');
     textAlign(CENTER, CENTER);
     fill(255);
     textSize(30);
-    text('Land Batman safely on the moon!', width / 2 - 100, height / 2 - 100);
+    text('Land Batman safely on the moon!', width / 2, height / 2 - 100);
     textSize(20);
-    text('Press any key to start', width / 2 - 100, height / 2);
+    text('Press any key to start', width / 2, height / 2);
 }
 
 function gameWin() {
@@ -136,10 +137,10 @@ function gameWin() {
     textAlign(CENTER, CENTER);
     fill(0, 0, 255);
     textSize(80);
-    text('YOU WON!', width / 3, height / 2 - 100);
+    text('YOU WON!', width / 2, height / 2 - 100);
     textSize(30);
-    text('Press any key to restart', width / 3, height / 2 - 100);
-    noLoop();
+    text('Press any key to restart', width / 2, height / 2);
+    
 }
 
 function gameOver() {
@@ -148,10 +149,10 @@ function gameOver() {
     textAlign(CENTER, CENTER);
     fill(255, 0, 0);
     textSize(80);
-    text('GAME OVER', width / 3, height / 2 - 100);
+    text('GAME OVER', width / 2, height / 2 - 100);
     textSize(30);
-    text('Press any key to restart', width / 3, height / 2);
-    noLoop();
+    text('Press any key to restart', width / 2, height / 2);
+    
 }
 
 function resetGame() {
@@ -163,7 +164,6 @@ function resetGame() {
     explosionTriggered = false;
     landedSafely = false;
     gameWon = false;
-    loop();
 }
 
 //Drawing the space atmosphere
